@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天津居家养老管理系统</title>
+    <!--引入外部样式文件-->
+    <link rel="stylesheet" href="./css/login.css">
+    <!-- 引入Element UI样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!--使用CDN引入VUE模块-->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+    <!-- 引入Element组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <!-- 引入Axios组件库 -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+</head>
+
+
+<body>
+    <div id="login">
+        <el-container>
+            <el-main>
+                <div class="login-container">
+                    <el-form :rules="rules2" :model="adminForm" status-icon  label-position="left" label-width="0px"
+                        class="demo-ruleForm login-page">
+                        <h3 class="title">天津居家养老管理系统登录</h3>
+                        <el-form-item prop="username">
+                            <el-input type="text" v-model="adminForm.username" auto-complete="off" placeholder="用户名"></el-input>
+                        </el-form-item>
+                        <el-form-item prop="password">
+                            <el-input type="password" v-model="adminForm.password" auto-complete="off" placeholder="密码">
+                            </el-input>
+                        </el-form-item>
+                        <el-checkbox v-model="checked" class="rememberme">记住密码</el-checkbox>
+                        <el-form-item style="width:100%;">
+                            <el-button type="primary" style="width:100%;" @click="onLogin" :loading="logining">登录
+                            </el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+            </el-main>
+        </el-container>
+
+
+
+
+
+    </div>
+</body>
+
+</html>
+
+
+
+
+<!-- 引入Vue代码 -->
+<script src="./js/login.js"></script>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天津居家养老管理系统</title>
+    <!--引入外部样式文件-->
+    <link rel="stylesheet" href="./css/index.css">
+    <!-- 引入Element UI样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!--使用CDN引入VUE模块-->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+    <!-- 引入Element组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <!-- 引入Axios组件库 -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+</head>
+
+<body>
+    <div id="app">
+        <el-container>
+            <el-header style="height: 80px;">天津居家养老管理系统登录</el-header>
+            <el-container>
+                <el-aside width="200px">
+                    <el-menu default-active="1" class="el-menu-vertical-demo">
+                        <!-- @open="handleOpen" -->
+                        <!-- @close="handleClose"> -->
+
+                        <el-menu-item index="1">
+                            <i class="el-icon-user-solid"></i>
+                            <span slot="title">老人管理</span>
+
+                        </el-menu-item>
+
+                        <el-submenu index="2">
+                            <template slot="title">
+                                <i class="el-icon-add-location"></i>
+                                <span>医疗管理</span>
+                            </template>
+                            <el-menu-item-group>
+                                <!-- <template slot="title">分组一</template> -->
+                                <el-menu-item index="1-1">药店管理</el-menu-item>
+                                <el-menu-item index="1-2">医院管理</el-menu-item>
+                            </el-menu-item-group>
+                            <!-- <el-menu-item-group title="分组2">
+                                <el-menu-item index="1-3">选项3</el-menu-item>
+                            </el-menu-item-group>
+                            <el-submenu index="1-4">
+                                <template slot="title">选项4</template>
+                                <el-menu-item index="1-4-1">选项1</el-menu-item>
+                            </el-submenu> -->
+                        </el-submenu>
+
+
+                        <!-- <el-menu-item index="2">
+                            <i class="el-icon-menu"></i>
+                            <span slot="title"></span>
+                        </el-menu-item> -->
+                        <el-menu-item index="3">
+                            <i class="el-icon-s-home"></i>
+                            <span slot="title">社区管理</span>
+                        </el-menu-item>
+                        <el-menu-item index="4">
+                            <i class="el-icon-s-opportunity"></i>
+                            <span slot="title">活动管理</span>
+                        </el-menu-item>
+                    </el-menu>
+                </el-aside>
+                <el-container>
+                    <!-- 主窗体 -->
+                    <el-main>
+
+                        <!-- 面包屑导航 -->
+                        <el-breadcrumb separator-class="el-icon-arrow-right">
+                            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+                            <el-breadcrumb-item>老人管理</el-breadcrumb-item>
+                        </el-breadcrumb>
+
+                        <!-- 表单 -->
+                        <el-form :inline="true" style="margin-top: 20px;">
+                            <!--横向-->
+                            <!-- <el-row :gutter="20"> -->
+                            <el-row>
+                                <el-col :span="12">
+                                    <el-form-item label="请输入查询条件：">
+                                        <el-input v-model="inputStr" placeholder="年龄、性别、社区等关键字" style="width: 420px;">
+                                        </el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="8" style="text-align: right; padding-right: 10px;">
+                                    <el-button-group>
+                                        <el-button type="primary" icon="el-icon-search" @click="queryOlds()">查询
+                                        </el-button>
+                                        <el-button type="primary" icon="el-icon-tickets" @click="getOlds()">全部
+                                        </el-button>
+                                        <el-button type="primary" icon="el-icon-circle-plus-outline" @click="addOlds()">
+                                            添加</el-button>
+                                    </el-button-group>
+                                    <!-- <div class="grid-content bg-purple"></div> -->
+                                </el-col>
+                                <el-col :span="2" style="text-align: right; padding-right: 4px;">
+                                    <!-- <el-upload class="upload-demo" action="https://jsonplaceholder.typicode.com/posts/"
+                                        :on-preview="handlePreview" :on-remove="handleRemove"
+                                        :before-remove="beforeRemove" multiple :limit="3" :on-exceed="handleExceed"
+                                        :file-list="fileList"> -->
+                                    <el-upload :show-file-list="false" :http-request="uploadExcelPost">
+                                        <el-button type="primary">导入Excel</el-button>
+                                        <!-- <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div> -->
+                                    </el-upload>
+                                </el-col>
+                                <el-col :span="2">
+                                    <!-- <el-upload> -->
+                                    <el-button type="primary" @click="exportToExcel()">导出Excel</el-button>
+                                    <!-- <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div> -->
+                                    <!-- </el-upload> -->
+                                    <!-- <div class="grid-content bg-purple"></div> -->
+                                </el-col>
+                            </el-row>
+
+                        </el-form>
+
+                        <!-- 表格 -->
+                        <el-table :data="pageOlds" border style="width: 100%;"
+                            @selection-change="handleSelectionChange">
+                            <el-table-column type="selection">
+                            </el-table-column>
+                            <el-table-column prop="index" label="序号" width="60">
+                            </el-table-column>
+                            <el-table-column prop="oNo" label="编号" width="80">
+                            </el-table-column>
+                            <el-table-column prop="oName" label="姓名" width="80">
+                            </el-table-column>
+                            <el-table-column prop="oGender" label="性别" width="60">
+                            </el-table-column>
+                            <el-table-column prop="oBirthday" label="出生日期" align="center" width="120">
+                            </el-table-column>
+                            <el-table-column prop="oMobile" label="手机号码" align="center" width="160">
+                            </el-table-column>
+                            <el-table-column prop="oFamilyMobile" label="家属手机号码" align="center" width="220">
+                            </el-table-column>
+                            <el-table-column prop="oAddress" label="家庭住址" align="center">
+                            </el-table-column>
+                            <el-table-column label="操作" width="220" align="center">
+                                <!-- <el-button icon="el-icon-search" circle></el-button> -->
+                                <!-- <el-button type="success" icon="el-icon-more" circle></el-button> -->
+                                <template slot-scope="scope">
+                                    <el-button type="warning" icon="el-icon-more" size="mini" circle
+                                        @click="viewOlds(scope.row)"></el-button>
+                                    <el-button type="primary" icon="el-icon-edit" size="mini" circle
+                                        @click="updateOlds(scope.row)"></el-button>
+                                    <el-button type="danger" icon="el-icon-delete" size="mini" circle
+                                        @click="deleteOlds(scope.row)"></el-button>
+                                    <!-- <el-button type="warning" icon="el-icon-more" circle></el-button>
+                                <el-button type="primary" icon="el-icon-edit" circle></el-button>
+                                <el-button type="danger" icon="el-icon-delete" circle></el-button> -->
+                                </template>
+                            </el-table-column>
+                        </el-table>
+
+                        <!-- 分页 -->
+                        <el-row style="margin-top:20px;">
+                            <el-col :span="8" style="text-align: left;">
+                                <el-button type="danger" icon="el-icon-delete" @click="deleteOldsAll()">批量删除</el-button>
+                            </el-col>
+                            <el-col :span="16" style="text-align: right;">
+                                <!-- 分页 -->
+                                <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                                    :current-page="currentpage" :page-sizes="[5, 10, 50, 100]" :page-size="pagesize"
+                                    layout="total, sizes, prev, pager, next, jumper" :total="total">
+                                </el-pagination>
+                            </el-col>
+                        </el-row>
+
+                        <!-- 弹出框的老人明细表 -->
+                        <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="50%"
+                            :close-on-click-modal="false" @close="closeDialogForm('oldsForm')">
+                            <!--弹出框右上角×绑定close函数-->
+                            <el-form :model="oldsForm" :rules="rules" ref="oldsForm" :inline="true"
+                                style="margin-left: 5%;" size="mini" label-width="110px" label-position="right">
+                                <!--Form中捆绑:model而不是v-model-->
+
+                                <!-- action="https://jsonplaceholder.typicode.com/posts/"
+                                :on-success="handleAvatarSuccess"
+                                :before-upload="beforeAvatarUpload" -->
+
+                                <el-upload class="avatar-uploader" :show-file-list="false"
+                                    :http-request="uploadPicturePost" :disabled="isView"
+                                    style="text-align: center;margin-bottom: 20px;">
+                                    <img v-if="oldsForm.oImage" :src="oldsForm.oImageUrl" class="avatar">
+                                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                                </el-upload>
+
+                                <el-form-item label="编号：" prop="oNo">
+                                    <!--prop捆绑需要验证的项-->
+                                    <el-input v-model="oldsForm.oNo" :disabled="isEdit || isView"
+                                        suffix-icon="el-icon-edit"></el-input>
+                                </el-form-item>
+                                <el-form-item label="姓名：" prop="oName">
+                                    <el-input v-model="oldsForm.oName" :disabled="isView" suffix-icon="el-icon-edit">
+                                    </el-input>
+                                </el-form-item>
+                                <el-form-item label="性别：" prop="oGender">
+                                    <el-select v-model="oldsForm.oGender" :disabled="isView" placeholder="请选择性别">
+                                        <el-option label="男" value="男"></el-option>
+                                        <el-option label="女" value="女"></el-option>
+                                    </el-select>
+                                </el-form-item>
+
+                                <el-form-item label="出生日期：" prop="oBirthday">
+                                    <!--加required可以便捷添加不能为空的规范-->
+                                    <el-date-picker v-model="oldsForm.oBirthday" value-format="yyyy-MM-dd"
+                                        :disabled="isView" type="date" placeholder="选择日期" style="width: 93%;">
+                                    </el-date-picker>
+                                </el-form-item>
+
+                                </el-form-item>
+                                <el-form-item label="身份证号码：" prop="oIdentity">
+                                    <el-input v-model="oldsForm.oIdentity" :disabled="isView"
+                                        suffix-icon="el-icon-edit"></el-input>
+                                </el-form-item>
+
+                                <el-form-item label="手机号码：" prop="oMobile">
+                                    <el-input v-model="oldsForm.oMobile" :disabled="isView" suffix-icon="el-icon-edit">
+                                    </el-input>
+                                </el-form-item>
+                                <el-form-item label="家属手机号码：" prop="oFamilyMobile">
+                                    <el-input v-model="oldsForm.oFamilyMobile" :disabled="isView"
+                                        suffix-icon="el-icon-edit"></el-input>
+                                </el-form-item>
+                                <br>
+                                <el-form-item label="家庭住址：" prop="oAddress">
+                                    <el-input v-model="oldsForm.oAddress" :disabled="isView" suffix-icon="el-icon-edit"
+                                        style="width: 263%;"></el-input>
+                                </el-form-item>
+                                <br><br>
+                                <el-form-item label="身体健康情况：" prop="oHealth">
+                                    <el-input v-model="oldsForm.oHealth" :disabled="isView" suffix-icon="el-icon-edit"
+                                        style="width: 263%;"></el-input>
+                                </el-form-item>
+                                <br>
+                                <el-form-item label="社会活动情况：" prop="oSocial">
+                                    <el-input v-model="oldsForm.oSocial" :disabled="isView" suffix-icon="el-icon-edit"
+                                        style="width: 263%;"></el-input>
+                                </el-form-item>
+                            </el-form>
+                            <span slot="footer" class="dialog-footer">
+                                <el-button type="primary" v-show="!isView" @click="submitOldsForm('oldsForm')">确 定
+                                </el-button>
+                                <!--view的时候不show确定按钮-->
+                                <el-button type="info" @click="closeDialogForm('oldsForm')">取 消</el-button>
+
+                            </span>
+                        </el-dialog>
+                    </el-main>
+                    <el-footer style="height: 30px;">天津居家养老管理系统v1.0 版权所有：QueenDekimZ | 2020-11-5</el-footer>
+                </el-container>
+            </el-container>
+        </el-container>
+
+    </div>
+</body>
+
+</html>
+
+<!-- 引入Vue代码 -->
+<script src="./js/index.js"></script>
